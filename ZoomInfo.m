@@ -8,10 +8,6 @@
 
 #import "ZoomInfo.h"
 
-@interface NSApplication(Omni)
-- (BOOL) checkForModifierFlags:(unsigned int)flags;
-@end
-
 @implementation ZoomInfo
 
 - (id) initWithImage: (NSImage*) image
@@ -35,11 +31,8 @@
 - (void) calculateZoomFromRect: (NSRect) startRect toRect: (NSRect) endRect
 {
 	//if the shift key is down, we slow the zoom effect down (like e.g. the dock)
-	//(To determine this ([[NSApp currentEvent] modifierFlags] & NSShiftKeyMask)
-	//should do it, but it don't. So ask OAApplication, if present)
-	BOOL shiftKeyPressed = NO;
-	if ( [NSApp respondsToSelector: @selector(checkForModifierFlags:) ] )
-		 shiftKeyPressed = [NSApp checkForModifierFlags: NSShiftKeyMask];
+	//([NSEvent modifierFlags] returns the current hardware state, unlike [[NSApp currentEvent] modifierFlags])
+	BOOL shiftKeyPressed = ( [NSEvent modifierFlags] & NSEventModifierFlagShift ) != 0;
     
 	BOOL zoomIn = NSContainsRect( endRect, startRect );
 	
@@ -142,7 +135,7 @@
 	
 	[_image drawInRect: _rect
 			  fromRect: NSMakeRect( 0, 0, imageSize.width, imageSize.height )
-			 operation: NSCompositeCopy
+			 operation: NSCompositingOperationCopy
               fraction: 1/*requestedAlpha*/
         respectFlipped: YES
                  hints: nil];
